@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 public class LetteredKeys : MonoBehaviour {
@@ -107,6 +108,34 @@ public class LetteredKeys : MonoBehaviour {
         {
             return "A";
         }
+    }
+
+    public string TwitchHelpMessage = "!{0} press b";
+    public KMSelectable[] ProcessTwitchCommand(string command)
+    {
+        if (command.StartsWith("press ", System.StringComparison.InvariantCultureIgnoreCase))
+        {
+            Match match = Regex.Match(command, "[1-4a-d]", RegexOptions.IgnoreCase);
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            int buttonID;
+            if (int.TryParse(match.Value, out buttonID))
+            {
+                return new KMSelectable[] { buttons[buttonID - 1] };
+            }
+
+            foreach (KMSelectable button in buttons)
+            {
+                if (match.Value.Equals(button.GetComponentInChildren<TextMesh>().text, System.StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return new KMSelectable[] { button };
+                }
+            }
+        }
+        return null;
     }
 
     /*
